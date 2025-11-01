@@ -133,6 +133,9 @@ def select_shallow_thinking_agent(provider) -> str:
             ("GPT-4.1-mini - Compact model with good performance", "gpt-4.1-mini"),
             ("GPT-4o - Standard model with solid capabilities", "gpt-4o"),
         ],
+        "智谱ai (glm)": [
+            ("GLM-4.6 - 智能语言模型", "glm-4.6"),
+        ],
         "anthropic": [
             ("Claude Haiku 3.5 - Fast inference and standard capabilities", "claude-3-5-haiku-latest"),
             ("Claude Sonnet 3.5 - Highly capable standard model", "claude-3-5-sonnet-latest"),
@@ -155,11 +158,23 @@ def select_shallow_thinking_agent(provider) -> str:
         ]
     }
 
+    # 标准化provider名称用于查找
+    provider_key_map = {
+        "智谱ai (glm)": "智谱ai (glm)",
+        "openai": "openai",
+        "anthropic": "anthropic",
+        "google": "google",
+        "openrouter": "openrouter",
+        "ollama": "ollama",
+    }
+
+    provider_key = provider_key_map.get(provider.lower(), provider.lower())
+
     choice = questionary.select(
         "Select Your [Quick-Thinking LLM Engine]:",
         choices=[
             questionary.Choice(display, value=value)
-            for display, value in SHALLOW_AGENT_OPTIONS[provider.lower()]
+            for display, value in SHALLOW_AGENT_OPTIONS[provider_key]
         ],
         instruction="\n- Use arrow keys to navigate\n- Press Enter to select",
         style=questionary.Style(
@@ -194,6 +209,9 @@ def select_deep_thinking_agent(provider) -> str:
             ("o3 - Full advanced reasoning model", "o3"),
             ("o1 - Premier reasoning and problem-solving model", "o1"),
         ],
+        "智谱ai (glm)": [
+            ("GLM-4.6 - 智能语言模型", "glm-4.6"),
+        ],
         "anthropic": [
             ("Claude Haiku 3.5 - Fast inference and standard capabilities", "claude-3-5-haiku-latest"),
             ("Claude Sonnet 3.5 - Highly capable standard model", "claude-3-5-sonnet-latest"),
@@ -217,11 +235,23 @@ def select_deep_thinking_agent(provider) -> str:
         ]
     }
     
+    # 标准化provider名称用于查找
+    provider_key_map = {
+        "智谱ai (glm)": "智谱ai (glm)",
+        "openai": "openai",
+        "anthropic": "anthropic",
+        "google": "google",
+        "openrouter": "openrouter",
+        "ollama": "ollama",
+    }
+
+    provider_key = provider_key_map.get(provider.lower(), provider.lower())
+
     choice = questionary.select(
         "Select Your [Deep-Thinking LLM Engine]:",
         choices=[
             questionary.Choice(display, value=value)
-            for display, value in DEEP_AGENT_OPTIONS[provider.lower()]
+            for display, value in DEEP_AGENT_OPTIONS[provider_key]
         ],
         instruction="\n- Use arrow keys to navigate\n- Press Enter to select",
         style=questionary.Style(
@@ -244,10 +274,11 @@ def select_llm_provider() -> tuple[str, str]:
     # Define OpenAI api options with their corresponding endpoints
     BASE_URLS = [
         ("OpenAI", "https://api.openai.com/v1"),
+        ("智谱AI (GLM)", "https://open.bigmodel.cn/api/paas/v4"),
         ("Anthropic", "https://api.anthropic.com/"),
         ("Google", "https://generativelanguage.googleapis.com/v1"),
         ("Openrouter", "https://openrouter.ai/api/v1"),
-        ("Ollama", "http://localhost:11434/v1"),        
+        ("Ollama", "http://localhost:11434/v1"),
     ]
     
     choice = questionary.select(

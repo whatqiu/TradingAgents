@@ -1,15 +1,20 @@
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
+from tradingagents.logging import setup_logging_from_env, get_logger
 
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
+# Setup logging system
+setup_logging_from_env()
+logger = get_logger(__name__)
+logger.info("TradingAgents application starting")
+
 # Create a custom config
 config = DEFAULT_CONFIG.copy()
-config["deep_think_llm"] = "gpt-4o-mini"  # Use a different model
-config["quick_think_llm"] = "gpt-4o-mini"  # Use a different model
+# 使用默认配置中的GLM-4.6模型
 config["max_debate_rounds"] = 1  # Increase debate rounds
 
 # Configure data vendors (default uses yfinance and alpha_vantage)

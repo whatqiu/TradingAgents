@@ -2,8 +2,16 @@ import os
 import requests
 import pandas as pd
 import json
+import logging
 from datetime import datetime
 from io import StringIO
+import warnings
+
+# Suppress pandas warnings about date parsing
+warnings.filterwarnings('ignore', category=UserWarning, message='Could not infer format')
+
+
+logger = logging.getLogger(__name__)
 
 API_BASE_URL = "https://www.alphavantage.co/query"
 
@@ -41,10 +49,51 @@ class AlphaVantageRateLimitError(Exception):
 
 def _make_api_request(function_name: str, params: dict) -> dict | str:
     """Helper function to make API requests and handle responses.
-    
+
+    This function includes retry logic and rate limiting to handle API failures gracefully.
+
+    Args:
+        function_name: Alpha Vantage API function name
+        params: API parameters
+
+    Returns:
+        API response data (dict or string)
+
     Raises:
         AlphaVantageRateLimitError: When API rate limit is exceeded
+        requests.RequestException: When network request fails
     """
+    import time
+    import random
+
+    max_retries = 3
+    base_delay = 2.0
+
+    for attempt in range(max_retries + 1):
+        try:
+            return _make_single_api_request(function_name, params)
+        except (requests.ConnectionError, requests.Timeout, OSError) as e:
+            if attempt == max_retries:
+                logger.error(f"All {max_retries + 1} attempts failed. Final error: {e}")
+                raise
+
+            # Calculate delay with exponential backoff and jitter
+            delay = min(base_delay * (2 ** attempt), 60.0)
+            jitter = random.uniform(0, delay * 0.1)
+            delay += jitter
+
+            logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {delay:.2f}s")
+            time.sleep(delay)
+        except AlphaVantageRateLimitError:
+            # Rate limit errors should not be retried immediately
+            raise
+        except Exception as e:
+            # Other exceptions should not be retried
+            logger.error(f"Non-retryable exception: {e}")
+            raise
+
+
+def _make_single_api_request(function_name: str, params: dict) -> dict | str:
     # Create a copy of params to avoid modifying the original
     api_params = params.copy()
     api_params.update({

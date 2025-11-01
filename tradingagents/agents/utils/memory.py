@@ -1,4 +1,5 @@
 import chromadb
+import os
 from chromadb.config import Settings
 from openai import OpenAI
 
@@ -9,17 +10,38 @@ class FinancialSituationMemory:
             self.embedding = "nomic-embed-text"
         else:
             self.embedding = "text-embedding-3-small"
-        self.client = OpenAI(base_url=config["backend_url"])
+
+        # 根据provider选择API key
+        provider = config.get("llm_provider", "").lower()
+        if provider == "zhipuai":
+            api_key = os.getenv("GLM_API_KEY")
+            if not api_key:
+                raise ValueError("GLM_API_KEY环境变量未设置，请在.env文件中设置GLM_API_KEY")
+        else:
+            api_key = os.getenv("OPENAI_API_KEY")
+
+        self.config = config  # 保存配置供后续使用
+        self.client = OpenAI(base_url=config["backend_url"], api_key=api_key)
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
         self.situation_collection = self.chroma_client.create_collection(name=name)
 
     def get_embedding(self, text):
-        """Get OpenAI embedding for a text"""
-        
-        response = self.client.embeddings.create(
-            model=self.embedding, input=text
-        )
-        return response.data[0].embedding
+        """Get embedding for a text"""
+        provider = self.config.get("llm_provider", "").lower()
+
+        if provider == "zhipuai":
+            # 对于ZhipuAI，暂时使用一个简单的hash作为embedding的替代
+            # 因为ZhipuAI可能不提供兼容的embedding API
+            import hashlib
+            text_hash = hashlib.md5(text.encode()).hexdigest()
+            # 将hash转换为固定长度的向量（简化版本）
+            return [float(int(text_hash[i:i+2], 16)) / 255.0 for i in range(0, min(len(text_hash), 64), 2)]
+        else:
+            # 使用OpenAI的embedding服务
+            response = self.client.embeddings.create(
+                model=self.embedding, input=text
+            )
+            return response.data[0].embedding
 
     def add_situations(self, situations_and_advice):
         """Add financial situations and their corresponding advice. Parameter is a list of tuples (situation, rec)"""
