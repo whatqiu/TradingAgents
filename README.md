@@ -91,6 +91,34 @@ Our framework decomposes complex trading tasks into specialized roles. This ensu
   <img src="assets/risk.png" width="70%" style="display: inline-block; margin: 0 2%;">
 </p>
 
+## Recent Updates
+
+### 🚀 Latest Features (November 2024)
+- **Added Zhipu GLM-4.6 Model Support** - Integrated Zhipu AI's GLM-4.6 model as a new language model option for enhanced Chinese financial analysis capabilities
+- **YFinance Performance Optimization** - Significantly improved YFinance data fetching speed with optimized caching and request handling (129+ lines of performance improvements)
+- **Enhanced Data Vendor Architecture** - Improved resilience and error handling across multiple data providers
+
+### 📊 Major Data Provider Enhancements (October 2024)
+- **Alpha Vantage API Integration** - Comprehensive integration with Alpha Vantage as primary data provider:
+  - Stock data (daily OHLCV with advanced date filtering)
+  - Technical indicators (SMA, EMA, MACD, RSI, Bollinger Bands, ATR)
+  - Fundamental data (overview, balance sheet, cashflow, income statement)
+  - News and sentiment data with insider transaction analysis
+- **Improved Tool Fallbacks** - Added robust fallback mechanisms for data fetching failures
+- **Enhanced Memory Management** - Improved conversation memory and context handling for better agent performance
+
+### 🔧 Infrastructure & Tooling
+- **Environment Variable Configuration** - Added comprehensive `.env` file support for better configuration management
+- **Multi-Backend Support** - Enhanced support for various OpenAI-compatible APIs including OpenRouter and local Ollama deployments
+- **Improved Logging and Reporting** - Better structured output for trading decisions and agent reasoning
+- **Docker Support** - Added containerization support for easier deployment
+
+### 🐛 Bug Fixes & Optimizations
+- **Fixed Anthropic API Integration** - Corrected tool calling format and response handling for Claude models
+- **Prevented Infinite Loops** - Added safeguards against recursive agent behaviors
+- **Enhanced Error Handling** - Improved robustness across data fetching and model interactions
+- **Memory Leak Fixes** - Optimized memory usage in long-running trading sessions
+
 ## Installation and CLI
 
 ### Installation
